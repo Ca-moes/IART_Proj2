@@ -6,9 +6,7 @@ from gym_neutreeko.game.engine.gamelogic import NeutreekoGame
 
 if __name__ == "__main__":
     game = NeutreekoGame()
-    board = NeutreekoGame.new_board()
+    game.reset()
 
-    result = numpy.where(board == 1)
-    print(result)
-    listOfCoordinates = list(zip(result[0], result[1]))
-    print(listOfCoordinates)
+    print(game.board)
+    print(game.get_possible_moves(NeutreekoGame.WHITE))
