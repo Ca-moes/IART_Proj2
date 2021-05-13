@@ -1,6 +1,10 @@
 import gym
-from gym import error, spaces, utils
+from gym import error, spaces, utils, logger
 from gym.utils import seeding
+
+import numpy as np
+
+from gym_neutreeko.game.engine.gamelogic import NeutreekoGame
 
 
 class NeutreekoEnv(gym.Env):
@@ -43,19 +47,55 @@ class NeutreekoEnv(gym.Env):
        Considered solved when the average return is greater than or equal to
        195.0 over 100 consecutive trials.
    """
-    metadata = {'render.modes': ['human']}
+    metadata = {
+        'render.modes': ['terminal']
+    }
 
-    def __init__(self):
-        ...
+    def __init__(self, render_mode='terminal', max_turns=200):
+        super(NeutreekoEnv, self).__init__()
+
+        # Every environment comes with an action_space and an observation_space.
+        # These attributes are of type Space
+        self.action_space = gym.spaces.Box(0, 60, shape=(2,), dtype=np.uint8) #TODO Isto À esquerda
+        self.observation_space = gym.spaces.Box(low=np.int8(0), high=np.int8(2), shape=(5,5), dtype=np.int8)
+
+        self.render_mode = render_mode
+        self.max_turns = max_turns
+
+        self.game = NeutreekoGame()
+        pass
 
     def step(self, action):
-        ...
+        """
+       implementation of the classic “agent-environment loop”.
+       Args:
+           action (object) : the board
+       Returns:
+           observation (object):
+           reward (float)
+           done (boolean)
+           info (dict)
+       """
+        if self.done:
+            logger.warn("You are calling 'step()' even though this environment has already returned done = True."
+                        "You should always call 'reset()' once you receive 'done = True'"
+                        "-- any further steps are undefined behavior.")
+        else:
+            reward = 0
+            info = {
+                'turn': None,
+                'player': None,
+
+            }
+
+            pass
 
     def reset(self):
-        ...
+        self.game.reset()
+        pass
 
-    def render(self, mode='human'):
-        ...
+    def render(self, mode='terminal'):
+        pass
 
     def close(self):
-        ...
+        pass

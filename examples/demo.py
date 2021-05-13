@@ -1,12 +1,27 @@
-# Onde vai ocorrer o jogo e haver a interação Agente-Ambiente
-# https://github.com/towzeur/gym-abalone/blob/master/examples/demo.py
-import numpy
+import gym
 
-from gym_neutreeko.game.engine.gamelogic import NeutreekoGame
+from gym_neutreeko.envs import NeutreekoEnv
 
-if __name__ == "__main__":
-    game = NeutreekoGame()
-    game.reset()
+class Agent:
+    @staticmethod
+    def choice_random(env):
+        pass
 
-    print(game.board)
-    print(game.get_possible_moves(NeutreekoGame.WHITE))
+
+env = NeutreekoEnv(render_mode='terminal')
+print(env.action_space)
+#> Box(0, 60, (2,), uint8)  <- Isto vai ser diferente
+print(env.observation_space)
+#> Box(0, 2, (5, 5), int8)
+
+NB_EPISODES = 1
+for episode in range(1, NB_EPISODES+1):
+    env.reset()
+    done = False
+    while not done:
+        action = Agent.choice_random(env)
+        obs, reward, done, info = env.step(action)
+        print(f"{info['turn']: <4} | {info['player_name']} | {str(info['move_type']): >16} | reward={reward: >4} ")
+        env.render()
+    print(f"Episode {info['turn']: <4} finished after {env.game.turns_count} turns \n")
+env.close()
