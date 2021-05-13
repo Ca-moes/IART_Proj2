@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import gym
 from gym import error, spaces, utils, logger
 from gym.utils import seeding
@@ -65,29 +67,36 @@ class NeutreekoEnv(gym.Env):
         self.game = NeutreekoGame()
         pass
 
-    def step(self, action):
+    def step(self, action) -> Tuple[object, float, bool, dict]:
         """
-       implementation of the classic “agent-environment loop”.
-       Args:
+        implementation of the classic “agent-environment loop”.
+
+        Args:
            action (object) : the board
-       Returns:
+        Returns:
            observation (object):
            reward (float)
            done (boolean)
            info (dict)
-       """
+
+        :param action:
+        :return:
+        """
+
+        reward = 0
+        info = {
+            'turn': None,
+            'player': None,
+        }
+
         if self.done:
             logger.warn("You are calling 'step()' even though this environment has already returned done = True."
                         "You should always call 'reset()' once you receive 'done = True'"
                         "-- any further steps are undefined behavior.")
         else:
-            reward = 0
-            info = {
-                'turn': None,
-                'player': None,
-
-            }
-
+            pos, dir = action
+            print(f'position -> {pos} | direction -> {dir}')
+            self.game.action_handler(pos, dir)
             pass
 
     def reset(self):
@@ -99,3 +108,9 @@ class NeutreekoEnv(gym.Env):
 
     def close(self):
         pass
+
+    @property
+    def done(self):
+        game_over = self.game.game_over
+        too_many_turns = (self.game.turns_count > self.max_turns)
+        return game_over or too_many_turns

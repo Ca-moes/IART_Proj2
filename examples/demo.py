@@ -1,11 +1,16 @@
 import gym
-
+import numpy as np
 from gym_neutreeko.envs import NeutreekoEnv
 
 class Agent:
     @staticmethod
     def choice_random(env):
-        pass
+        player = env.game.current_player
+        possible_moves = env.game.get_possible_moves(player)
+
+        i_random = np.random.randint(len(possible_moves))
+        print(possible_moves[i_random])
+        return possible_moves[i_random]
 
 
 env = NeutreekoEnv(render_mode='terminal')
