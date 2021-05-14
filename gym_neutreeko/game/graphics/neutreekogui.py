@@ -1,0 +1,1 @@
+# User Interface para jogo, em vez de consola: https://github.com/towzeur/gym-abalone/blob/master/gym_abalone/game/graphics/abalonegui.py
