@@ -13,21 +13,26 @@ class NeutreekoEnv(gym.Env):
     """
     TODO Mudar o que está abaixo. Retirado daqui: https://github.com/openai/gym/blob/master/gym/envs/classic_control/cartpole.py
     Description:
-       A pole is attached by an un-actuated joint to a cart, which moves along
-       a frictionless track. The pendulum starts upright, and the goal is to
-       prevent it from falling over by increasing and reducing the cart's
-       velocity.
+       In a 5x5 board there are 3 white pieces and 3 black pieces in a specific formation
+       The black pieces start first and can move in any direction, they can move until
+       they collide with another piece or the edge of the board
+       The game ends when the 3 pieces make a line in any direction
     Source:
-       This environment corresponds to the version of the cart-pole problem
-       described by Barto, Sutton, and Anderson
+       This environment corresponds to the Neutreeko game
+       Specified here: https://www.neutreeko.net/neutreeko.htm
     Observation:
-       Type: Box(4)
+       Type: Box(0, 2, (5, 5), int8)
+
+        [[0, 1, 0, 1, 0],
+         [0, 0, 2, 0, 0],
+         [0, 0, 0, 0, 0],
+         [0, 0, 1, 0, 0],
+         [0, 2, 0, 2, 0]]
+
        Num     Observation               Min                     Max
-       0       Cart Position             -4.8                    4.8
-       1       Cart Velocity             -Inf                    Inf
-       2       Pole Angle                -0.418 rad (-24 deg)    0.418 rad (24 deg)
-       3       Pole Angular Velocity     -Inf                    Inf
+       5,5     Board                     0                       2
     Actions:
+        TODO Ainda não tenho a certeza como ficarão as ações
        Type: Discrete(2)
        Num   Action
        0     Push cart to the left
@@ -37,15 +42,16 @@ class NeutreekoEnv(gym.Env):
        the center of gravity of the pole increases the amount of energy needed
        to move the cart underneath it
     Reward:
+        TODO Rewards ainda vão ser definidas
        Reward is 1 for every step taken, including the termination step
     Starting State:
-       All observations are assigned a uniform random value in [-0.05..0.05]
+        The initial board on the Observation details
     Episode Termination:
-       Pole Angle is more than 12 degrees.
-       Cart Position is more than 2.4 (center of the cart reaches the edge of
-       the display).
+       One of the players is the winner
+       The same board position happened 3 times
        Episode length is greater than 200.
-       Solved Requirements:
+    Solved Requirements:
+        TODO
        Considered solved when the average return is greater than or equal to
        195.0 over 100 consecutive trials.
    """
@@ -85,25 +91,35 @@ class NeutreekoEnv(gym.Env):
 
         reward = 0
         info = {
-            'turn': None,
-            'player': None,
+            'turn': self.game.turns_count,
+            'direction': None,
+            'player': self.game.current_player,
+            'player_name': ['white', 'black'][self.game.current_player - 1]
         }
 
-        if self.done:
-            logger.warn("You are calling 'step()' even though this environment has already returned done = True."
-                        "You should always call 'reset()' once you receive 'done = True'"
-                        "-- any further steps are undefined behavior.")
-        else:
-            pos, dir = action
-            print(f'position -> {pos} | direction -> {dir}')
-            self.game.action_handler(pos, dir)
-            pass
+        assert not self.done
+        # if self.done:
+        #     logger.warn("You are calling 'step()' even though this environment has already returned done = True."
+        #                 "You should always call 'reset()' once you receive 'done = True'"
+        #                 "-- any further steps are undefined behavior.")
+        pos, dir = action
+        move_check = self.game.action_handler(pos, dir)
+
+        if move_check:
+            move_dir, new_pos = move_check
+            reward = 1 # TODO fazer as atualizações direitas
+            info['direction'] = move_dir
+            info['new_position'] = new_pos
+
+        return self.observation, reward, self.done, info
 
     def reset(self):
         self.game.reset()
         pass
 
     def render(self, mode='terminal'):
+        if mode == 'terminal':
+            self.game.render()
         pass
 
     def close(self):
@@ -114,3 +130,7 @@ class NeutreekoEnv(gym.Env):
         game_over = self.game.game_over
         too_many_turns = (self.game.turns_count > self.max_turns)
         return game_over or too_many_turns
+
+    @property
+    def observation(self):
+        return np.copy(self.game.board)

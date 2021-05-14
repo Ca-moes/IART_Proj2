@@ -2,8 +2,6 @@
 import numpy as np
 from typing import Tuple, List, Union
 
-import numpy.char
-
 
 class NeutreekoGame:
     # Actions
@@ -68,6 +66,15 @@ class NeutreekoGame:
         """
         return self.board[position[0], position[1]]
 
+    def replace_in_board(self, position: Tuple[int, int], value: int) -> None:
+        """
+        Replaces a value in a board position
+        :param position: Tuple with 2 ints representing the coordinates of a cell
+        :param value: Value of a player
+        :return: None
+        """
+        self.board[position[0], position[1]] = value
+
     def free_cell(self, coords: Tuple[int, int]) -> bool:
         """
         Checks if a cell is within bounds of the board and is free (value is 0)
@@ -80,7 +87,7 @@ class NeutreekoGame:
         value = self.board[coords[0]][coords[1]]
         return value == 0
 
-    def check_direction(self, coords: Tuple[int, int], direction: str) -> Union[None, Tuple[str, tuple]]:
+    def check_direction(self, coords: Tuple[int, int], direction: str) -> Union[None, Tuple[int, int]]:
         """
         Returns the resulting position given a starting position and a direction.
         If the direction is not valid, returns None
@@ -161,9 +168,23 @@ class NeutreekoGame:
         :param dir: The direction that the piece will be moved to
         :return:
         """
-
-        print("IN ACTION HANDLER")
-        player = self.value_in_board(pos)  # Nem sei se é preciso isso
         result = self.check_direction(pos, dir)
-        print(result)
+        if not result:
+            return None
+
+        self.update_player_turns()
+        self.update_game(pos, result)
+        return dir, result
+
+    def update_player_turns(self):
+        self.current_player = self.WHITE if self.current_player == self.BLACK else self.BLACK
+        self.turns_count += 1
+
+    def update_game(self, pos, result):
+        player = self.value_in_board(pos)
+        self.replace_in_board(result, player)
+        self.replace_in_board(pos, 0)
         pass
+
+    def render(self):
+        print(self.board)
