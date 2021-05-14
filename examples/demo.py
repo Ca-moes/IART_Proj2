@@ -18,7 +18,7 @@ print(env.action_space)
 print(env.observation_space)
 #> Box(0, 2, (5, 5), int8)
 
-NB_EPISODES = 1
+NB_EPISODES = 2
 for episode in range(1, NB_EPISODES+1):
     env.reset()
     done = False

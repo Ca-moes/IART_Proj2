@@ -2,35 +2,11 @@
 import numpy as np
 from typing import Tuple, List, Union
 
+from gym_neutreeko.game.common import const
+from gym_neutreeko.game.common.gameutils import NeutreekoUtils as utils
+
 
 class NeutreekoGame:
-    # Actions
-    UP = (-1, 0)
-    DOWN = (+1, 0)
-    LEFT = (0, -1)
-    RIGHT = (0, +1)
-    UP_LEFT = (-1, -1)
-    UP_RIGHT = (-1, +1)
-    DOWN_LEFT = (+1, -1)
-    DOWN_RIGHT = (+1, +1)
-
-    # ACTIONS = [UP, DOWN, LEFT, RIGHT, UP_LEFT, UP_RIGHT, DOWN_LEFT, DOWN_RIGHT]
-
-    ACTIONS_DICT = {'UP': (-1, 0),
-               'DOWN': (+1, 0),
-               'LEFT': (0, -1),
-               'RIGHT': (0, +1),
-               'UP_LEFT': (-1, -1),
-               'UP_RIGHT': (-1, +1),
-               'DOWN_LEFT': (+1, -1),
-               'DOWN_RIGHT': (+1, +1)
-               }
-
-    # Players
-    BLACK = 2
-    WHITE = 1
-
-    BOARD_SIZE = 5
 
     def __init__(self):
         self.board = None
@@ -40,7 +16,7 @@ class NeutreekoGame:
 
     def reset(self):
         self.board = self.new_board()
-        self.current_player = self.BLACK
+        self.current_player = const.BLACK
         self.game_over = False
         self.turns_count = 0
 
@@ -82,7 +58,7 @@ class NeutreekoGame:
         :param coords: Tuple with 2 ints representing the coordinates of a cell
         :return: True if the cell equals 0 and is within bounds
         """
-        if (coords[0] < 0) | (coords[0] >= self.BOARD_SIZE) | (coords[1] < 0) | (coords[1] >= self.BOARD_SIZE):
+        if (coords[0] < 0) | (coords[0] >= const.BOARD_SIZE) | (coords[1] < 0) | (coords[1] >= const.BOARD_SIZE):
             return False
         value = self.board[coords[0]][coords[1]]
         return value == 0
@@ -96,7 +72,7 @@ class NeutreekoGame:
         :param direction: String representation of the direction to take
         :return: None if direction is not valid OR tuple with new coords of resulting positions
         """
-        action_coords = self.ACTIONS_DICT[direction]
+        action_coords = const.ACTIONS_DICT[direction]
         attempt_coords = tuple(np.add(coords, action_coords))
         free_cell = self.free_cell(attempt_coords)
         if not free_cell:
@@ -114,7 +90,7 @@ class NeutreekoGame:
         FIXME: untested inside for loop, need to check if "check_direction" is working as intended
         """
         dirs = []
-        for action_name in self.ACTIONS_DICT.keys():
+        for action_name in const.ACTIONS_DICT.keys():
             result = self.check_direction(coords, action_name)
             if result:
                 dirs.append(result)
@@ -136,7 +112,7 @@ class NeutreekoGame:
         result = np.where(self.board == player)
         list_of_coordinates = list(zip(result[0], result[1]))
         for pos in list_of_coordinates:
-            for direction in self.ACTIONS_DICT.keys():
+            for direction in const.ACTIONS_DICT.keys():
                 possible_moves.append((pos, direction))
 
         return possible_moves
@@ -174,10 +150,12 @@ class NeutreekoGame:
 
         self.update_player_turns()
         self.update_game(pos, result)
+
+        self.game_over = self.check_endgame()
         return dir, result
 
     def update_player_turns(self):
-        self.current_player = self.WHITE if self.current_player == self.BLACK else self.BLACK
+        self.current_player = const.WHITE if self.current_player == const.BLACK else const.BLACK
         self.turns_count += 1
 
     def update_game(self, pos, result):
@@ -188,3 +166,30 @@ class NeutreekoGame:
 
     def render(self):
         print(self.board)
+
+    def check_endgame(self) -> bool:
+
+        for i in range(const.BOARD_SIZE):
+            # Check victory in lines
+            if self.check_endgame_array(self.board[i, :]):
+                return True
+            # check victory in columns
+            if self.check_endgame_array(self.board[:, i]):
+                return True
+
+        # check victory in diagonals
+        flipped_board = np.fliplr(self.board)
+        for i in range(-2, 3):
+            diagonal1 = np.diagonal(self.board, offset=i)
+            if self.check_endgame_array(diagonal1):
+                return True
+            diagonal2 = np.diagonal(flipped_board, offset=i)
+            if self.check_endgame_array(diagonal2):
+                return True
+
+        return False
+
+    def check_endgame_array(self, array) -> bool:
+        win1 = utils.search_sequence_numpy(array, const.BLACK_WIN)
+        win2 = utils.search_sequence_numpy(array, const.WHITE_WIN)
+        return win1 or win2
