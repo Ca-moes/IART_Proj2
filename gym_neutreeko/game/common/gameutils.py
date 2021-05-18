@@ -36,3 +36,39 @@ class NeutreekoUtils:
         #     return np.where(np.convolve(M, np.ones(Nseq, dtype=int)) > 0)[0]
         # else:
         #     return []         # No match found
+
+    @staticmethod
+    def find_sequence_board(board, sequence):
+        for i in range(len(board)):
+            # Check in lines
+            if NeutreekoUtils.search_sequence_numpy(board[i, :], sequence):
+                return True
+            # check in columns
+            if NeutreekoUtils.search_sequence_numpy(board[:, i], sequence):
+                return True
+
+        # check victory in diagonals
+        flipped_board = np.fliplr(board)
+        for i in range(-2, 3):
+            diagonal1 = np.diagonal(board, offset=i)
+            if NeutreekoUtils.search_sequence_numpy(diagonal1, sequence):
+                return True
+            diagonal2 = np.diagonal(flipped_board, offset=i)
+            if NeutreekoUtils.search_sequence_numpy(diagonal2, sequence):
+                return True
+
+        return False
+
+
+
+class Reward:
+    @staticmethod
+    def method_1(move_type) -> int:
+        CONST_REWARDS = {
+            "win": 10,  # winning move
+            # "2_row": 5,  # places 2 pieces together
+            # "between": 2,  # gets in between 2 opponent pieces
+            "default": -0.1  # makes a move (negative to not enforce unnecessary moves)
+        }
+
+        return CONST_REWARDS.get(move_type, -1)

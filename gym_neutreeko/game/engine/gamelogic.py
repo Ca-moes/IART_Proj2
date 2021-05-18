@@ -93,7 +93,7 @@ class NeutreekoGame:
         for action_name in const.ACTIONS_DICT.keys():
             result = self.check_direction(coords, action_name)
             if result:
-                dirs.append(result)
+                dirs.append(action_name)
         return dirs
 
     def get_possible_moves(self, player: int, only_valid: bool = False) -> List[tuple]:
@@ -104,35 +104,23 @@ class NeutreekoGame:
         :param only_valid: TODO Boolean to be used in the future
         :return: A list of tuples with the starting position and a direction
         """
-        if only_valid:
-            raise Exception("Not yet implemented")
-
         possible_moves = []
 
+        # Find player piece positions
         result = np.where(self.board == player)
         list_of_coordinates = list(zip(result[0], result[1]))
+
+        # for each player piece
         for pos in list_of_coordinates:
-            for direction in const.ACTIONS_DICT.keys():
-                possible_moves.append((pos, direction))
-
-        return possible_moves
-
-    def OLD_get_possible_moves(self, player: int) -> list:
-        """
-        Este método já dá as moves válidos. Pode ser usado mais tarde
-        Será usado no método acima
-
-        :param player: Valor inteiro do jogador que vai jogar
-        :return:
-        """
-        # Encontra peças do player
-        result = np.where(self.board == player)
-        listOfCoordinates = list(zip(result[0], result[1]))
-        # Vê quais as direções válidas para essa peça (função à parte para fazer)
-        possible_moves = []
-        for coords in listOfCoordinates:
-            dirs = self.available_directions(coords)
-            possible_moves.append((coords, dirs))
+            if only_valid:
+                # checks which directions are available
+                dirs = self.available_directions(pos)
+                for dir in dirs:
+                    possible_moves.append((pos, dir))
+            else:
+                # adds every direction
+                for direction in const.ACTIONS_DICT.keys():
+                    possible_moves.append((pos, direction))
         return possible_moves
 
     def action_handler(self, pos, dir):
@@ -148,11 +136,15 @@ class NeutreekoGame:
         if not result:
             return None
 
-        self.update_player_turns()
         self.update_game(pos, result)
+        self.update_player_turns()
 
-        self.game_over = self.check_endgame()
-        return dir, result
+        white_win = utils.find_sequence_board(self.board, const.WHITE_WIN)
+        black_win = utils.find_sequence_board(self.board, const.BLACK_WIN)
+
+        self.game_over = (white_win or black_win)
+        move_type = "win" if self.game_over else "default"
+        return dir, result, move_type
 
     def update_player_turns(self):
         self.current_player = const.WHITE if self.current_player == const.BLACK else const.BLACK
@@ -166,30 +158,3 @@ class NeutreekoGame:
 
     def render(self):
         print(self.board)
-
-    def check_endgame(self) -> bool:
-
-        for i in range(const.BOARD_SIZE):
-            # Check victory in lines
-            if self.check_endgame_array(self.board[i, :]):
-                return True
-            # check victory in columns
-            if self.check_endgame_array(self.board[:, i]):
-                return True
-
-        # check victory in diagonals
-        flipped_board = np.fliplr(self.board)
-        for i in range(-2, 3):
-            diagonal1 = np.diagonal(self.board, offset=i)
-            if self.check_endgame_array(diagonal1):
-                return True
-            diagonal2 = np.diagonal(flipped_board, offset=i)
-            if self.check_endgame_array(diagonal2):
-                return True
-
-        return False
-
-    def check_endgame_array(self, array) -> bool:
-        win1 = utils.search_sequence_numpy(array, const.BLACK_WIN)
-        win2 = utils.search_sequence_numpy(array, const.WHITE_WIN)
-        return win1 or win2

@@ -3,11 +3,11 @@ from typing import Tuple
 import gym
 from gym import error, spaces, utils, logger
 from gym.utils import seeding
+from gym_neutreeko.game.common.gameutils import Reward
 
 import numpy as np
 
 from gym_neutreeko.game.engine.gamelogic import NeutreekoGame
-
 
 class NeutreekoEnv(gym.Env):
     """
@@ -106,8 +106,8 @@ class NeutreekoEnv(gym.Env):
         move_check = self.game.action_handler(pos, dir)
 
         if move_check:
-            move_dir, new_pos = move_check
-            reward = 1 # TODO fazer as atualizações direitas
+            move_dir, new_pos, move_type = move_check
+            reward = Reward.method_1(move_type)
             info['direction'] = move_dir
             info['new_position'] = new_pos
 
