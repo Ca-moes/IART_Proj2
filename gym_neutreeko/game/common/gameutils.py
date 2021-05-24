@@ -1,4 +1,8 @@
+from typing import Tuple
+
 import numpy as np
+
+from gym_neutreeko.game.common import const
 
 
 class NeutreekoUtils:
@@ -39,6 +43,12 @@ class NeutreekoUtils:
 
     @staticmethod
     def find_sequence_board(board, sequence):
+        """
+
+        :param board:
+        :param sequence:
+        :return:
+        """
         for i in range(len(board)):
             # Check in lines
             if NeutreekoUtils.search_sequence_numpy(board[i, :], sequence):
@@ -59,16 +69,42 @@ class NeutreekoUtils:
 
         return False
 
+    @staticmethod
+    def value_in_board(board, coords: Tuple[int, int]):
+        """
+        Returns the value in the board
+
+        :param board: A np array of size (5,5)
+        :param coords: The x and y coordinates of a spot
+        :return:
+        """
+        if (coords[0] < 0) | (coords[0] >= const.BOARD_SIZE) | (coords[1] < 0) | (coords[1] >= const.BOARD_SIZE):
+            return False
+        return board[coords[0], coords[1]]
+
+    @staticmethod
+    def replace_in_board(board, coords: Tuple[int, int], value: int):
+        """
+        Replaces a value in the board
+
+        :param board: A np array of size (5,5)
+        :param coords: The x and y coordinates of a spot
+        :param value: the value to be in the board
+        :return: None
+        """
+        if (coords[0] < 0) | (coords[0] >= const.BOARD_SIZE) | (coords[1] < 0) | (coords[1] >= const.BOARD_SIZE):
+            return False
+        board[coords[0], coords[1]] = value
 
 
 class Reward:
     @staticmethod
     def method_1(move_type) -> int:
         CONST_REWARDS = {
-            "win": 10,  # winning move
+            "win": 20,  # winning move
             # "2_row": 5,  # places 2 pieces together
             # "between": 2,  # gets in between 2 opponent pieces
-            "default": -0.1  # makes a move (negative to not enforce unnecessary moves)
+            "default": -1  # makes a move (negative to not enforce unnecessary moves)
         }
 
         return CONST_REWARDS.get(move_type, -1)

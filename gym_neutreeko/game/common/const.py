@@ -22,6 +22,13 @@ ACTIONS_DICT = {'UP': (-1, 0),
                 'DOWN_RIGHT': (+1, +1)
                 }
 
+EASY_ACTIONS_DICT = {
+    'UP': (-1, 0),
+    'DOWN': (+1, 0),
+    'LEFT': (0, -1),
+    'RIGHT': (0, +1),
+}
+
 # Players
 BLACK = 2
 WHITE = 1
