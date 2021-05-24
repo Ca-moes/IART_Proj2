@@ -21,18 +21,17 @@ class NeutreekoEasyEnv(gym.Env):
        This environment corresponds to a simplified version of the Neutreeko game
        Specified here: https://www.neutreeko.net/neutreeko.htm
     Observation:
-       Type: Box(0, 2, (5, 5), int8)
+       Type: Discrete(2300)
 
-        [[0, 1, 0, 3, 0],
+        [[0, 1, 0, 1, 0],
          [0, 0, 0, 0, 0],
          [0, 0, 0, 0, 0],
-         [0, 0, 2, 0, 0],
+         [0, 0, 1, 0, 0],
          [0, 0, 0, 0, 0]]
 
-       Num     Observation               Min                     Max
-       5,5     Board                     0                       2
+       All possible board combinations
     Actions:
-       Type: Discrete(4)
+       Type: Discrete(12)
        Num   Action
        0      1-UP
        1      1-DOWN
@@ -69,7 +68,8 @@ class NeutreekoEasyEnv(gym.Env):
 
         # 3 pieces and 8 directions possible
         self.action_space = gym.spaces.Discrete(4*3)
-        self.observation_space = gym.spaces.Box(low=np.int8(0), high=np.int8(2), shape=(5, 5), dtype=np.int8)
+        self.observation_space = gym.spaces.Discrete(2300)
+        # self.observation_space = gym.spaces.Box(low=np.int8(0), high=np.int8(2), shape=(5, 5), dtype=np.int8)
 
         self.render_mode = render_mode
         self.max_turns = max_turns
@@ -77,7 +77,7 @@ class NeutreekoEasyEnv(gym.Env):
         self.game = NeutreekoEasyGame()
         pass
 
-    def step(self, action) -> Tuple[object, float, bool, dict]:
+    def step(self, action: int) -> Tuple[object, float, bool, dict]:
         """
         implementation of the classic “agent-environment loop”.
 
@@ -95,6 +95,7 @@ class NeutreekoEasyEnv(gym.Env):
 
         reward = 0
         info = {
+            'old_state': np.copy(self.game.board),
             'turn': self.game.turns_count,
             'direction': None,
         }
@@ -104,9 +105,8 @@ class NeutreekoEasyEnv(gym.Env):
         #     logger.warn("You are calling 'step()' even though this environment has already returned done = True."
         #                 "You should always call 'reset()' once you receive 'done = True'"
         #                 "-- any further steps are undefined behavior.")
-        pos, dir = action
+        pos, dir = self.process(action)
         move_check = self.game.action_handler(pos, dir)
-
         if move_check:
             move_dir, new_pos, move_type = move_check
             reward = Reward.method_1(move_type)
@@ -127,6 +127,9 @@ class NeutreekoEasyEnv(gym.Env):
     def close(self):
         pass
 
+    def state(self):
+        return self.game.board
+
     @property
     def done(self):
         game_over = self.game.game_over
@@ -136,3 +139,9 @@ class NeutreekoEasyEnv(gym.Env):
     @property
     def observation(self):
         return np.copy(self.game.board)
+
+    def process(self, action):
+        directions = ['UP', 'DOWN', 'LEFT', 'RIGHT']
+        result = np.where(self.game.board == 1)
+        list_of_coordinates = list(zip(result[0], result[1]))
+        return list_of_coordinates[action // 4], directions[action % 4]

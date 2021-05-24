@@ -101,10 +101,10 @@ class Reward:
     @staticmethod
     def method_1(move_type) -> int:
         CONST_REWARDS = {
-            "win": 20,  # winning move
+            "win": 30,  # winning move
             # "2_row": 5,  # places 2 pieces together
             # "between": 2,  # gets in between 2 opponent pieces
-            "default": -1  # makes a move (negative to not enforce unnecessary moves)
+            "default": -0.1  # makes a move (negative to not enforce unnecessary moves)
         }
 
         return CONST_REWARDS.get(move_type, -1)
