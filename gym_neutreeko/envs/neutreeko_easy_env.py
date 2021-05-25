@@ -97,6 +97,7 @@ class NeutreekoEasyEnv(gym.Env):
         info = {
             'old_state': np.copy(self.game.board),
             'turn': self.game.turns_count,
+            'action': action,
             'direction': None,
         }
 
