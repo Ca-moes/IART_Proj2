@@ -12,6 +12,11 @@ from gym_neutreeko.game.engine.gamelogic import NeutreekoEasyGame
 class Reward:
     @staticmethod
     def get(move_type):
+        """
+        Chooses a reward value based on the type of action
+        :param move_type: type of action
+        :return: the reward value
+        """
         return {
             "win": 20,  # winning move
             # "2_row": 5,  # places 2 pieces together
@@ -110,9 +115,9 @@ class NeutreekoEasyEnv(gym.Env):
         pos, dir = self.process(action)
         move_check = self.game.action_handler(pos, dir)
         if move_check:
-            move_dir, new_pos, move_type = move_check
+            new_pos, move_type = move_check
             reward = Reward.get(move_type)
-            info['direction'] = move_dir
+            info['direction'] = dir
             info['new_position'] = new_pos
 
         return self.observation, reward, self.done, info

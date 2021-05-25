@@ -13,26 +13,23 @@ class NeutreekoEasyGame:
         self.game_over = None
         self.turns_count = None
 
-    def reset(self):
+    def reset(self) -> None:
+        """
+        Resets the game, with a new board, turns count to 0 and designates the first player
+        :return:
+        """
         self.board = self.new_board()
         self.current_player = 1
         self.game_over = False
         self.turns_count = 0
 
     @staticmethod
-    def new_board():
+    def new_board() -> np.array:
         """
-        TODO: Caso seja um board já acabado, escolher outro
-        returns a random starting board, each element is a numpy.int8 (-128, 127)
+        Returns a random starting board, each element is a numpy.int8 (-128, 127)
 
         :return: numpy.array
         """
-        # return np.array([[0, 1, 0, 0, 0],
-        #                  [0, 0, 1, 0, 0],
-        #                  [0, 0, 0, 1, 0],
-        #                  [0, 0, 0, 0, 0],
-        #                  [0, 0, 0, 0, 0]], dtype=np.int8)
-
         board = np.array([[0, 0, 0, 0, 0],
                           [0, 0, 0, 0, 0],
                           [0, 0, 0, 0, 0],
@@ -71,6 +68,7 @@ class NeutreekoEasyGame:
     def replace_in_board(self, position: Tuple[int, int], value: int) -> None:
         """
         Replaces a value in a board position
+
         :param position: Tuple with 2 ints representing the coordinates of a cell
         :param value: Value of a player
         :return: None
@@ -79,7 +77,7 @@ class NeutreekoEasyGame:
 
     def free_cell(self, coords: Tuple[int, int]) -> bool:
         """
-        Checks if a cell is within bounds of the board and is free (value is 0)
+        Checks if a cell is within bounds of the board and if it is free (value is 0)
 
         :param coords: Tuple with 2 ints representing the coordinates of a cell
         :return: True if the cell equals 0 and is within bounds
@@ -92,7 +90,7 @@ class NeutreekoEasyGame:
     def check_direction(self, coords: Tuple[int, int], direction: str) -> Union[None, Tuple[int, int]]:
         """
         Returns the resulting position given a starting position and a direction.
-        If the direction is not valid, returns None
+        If the direction is not valid (can't make progress in that direction), returns None
 
         :param coords: Coordinates of intial point
         :param direction: String representation of the direction to take
@@ -112,7 +110,10 @@ class NeutreekoEasyGame:
 
     def available_directions(self, coords: Tuple[int, int]) -> List[str]:
         """
-        For some starting coords, returns a list of pairs directions-finishing_coords
+        Finds which directions are available for a piece on the coords tuple
+
+        :param coords: The coordinates of a piece
+        :return: A list of directions
         """
         dirs = []
         for action_name in const.EASY_ACTIONS_DICT.keys():
@@ -126,8 +127,8 @@ class NeutreekoEasyGame:
         Return all the possible moves for a given player with the current board
 
         :param player: Integer representing the player
-        :param only_valid:
-        :return: A list of tuples with the starting position and a direction
+        :param only_valid: returns only the valid moves
+        :return: A list of ints representing possible actions
         """
         dirs_value = {
             'UP': 0,
@@ -157,14 +158,13 @@ class NeutreekoEasyGame:
             piece_value += 1
         return possible_moves
 
-    def action_handler(self, pos, dir) -> Tuple[str, tuple, str]:
+    def action_handler(self, pos, dir) -> Union[None, Tuple[tuple, str]]:
         """
-        After the agent chooses a move, it needs to be checked to see if it's valid
-        If it is valid, returns new position
+        Effectuates the movement of the piece in pos, in the direction dir
 
         :param pos: The position of the piece that will be moved
         :param dir: The direction that the piece will be moved to
-        :return:
+        :return: A tuple with the resulting position and the move type. None if the move is not valid
         """
         result = self.check_direction(pos, dir)
         if not result:
@@ -176,14 +176,22 @@ class NeutreekoEasyGame:
         self.game_over = utils.find_sequence_board(self.board, np.array([1, 1, 1]))
 
         move_type = "win" if self.game_over else "default"
-        return dir, result, move_type
+        return result, move_type
 
-    def update_game(self, pos, result):
+    def update_game(self, pos, result) -> None:
+        """
+        Replaces the piece in the board
+        :param pos: initial position of the piece
+        :param result: final position of the piece
+        """
         self.replace_in_board(result, 1)
         self.replace_in_board(pos, 0)
         pass
 
-    def render(self):
+    def render(self) -> None:
+        """
+        Renders the game on the screen
+        """
         print(self.board)
 
 
