@@ -51,7 +51,7 @@ class QAgent:
 
         return action
 
-    def update(self, obs, reward, done, info):
+    def update(self, obs, reward, done, info, env):
         if repr(obs) not in self.board_dict:
             if not self.board_dict:
                 self.board_dict[repr(obs)] = 0

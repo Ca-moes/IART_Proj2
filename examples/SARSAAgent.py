@@ -16,7 +16,7 @@ class SARSAAgent:
         self.board_dict = {}
         self.lastID = None
 
-    def choice(self, env):
+    def choice(self, env) -> int:
         # Choosing an action given the states based on a random number
         exp_exp_tradeoff = np.random.uniform(0, 1)
 
@@ -51,7 +51,7 @@ class SARSAAgent:
 
         return action
 
-    def update(self, obs, reward, done, info):
+    def update(self, obs, reward, done, info, env):
         if repr(obs) not in self.board_dict:
             if not self.board_dict:
                 self.board_dict[repr(obs)] = 0
@@ -67,8 +67,6 @@ class SARSAAgent:
         state = self.board_dict[repr(info["old_state"])]
         new_state = self.board_dict[repr(obs)]
         action = info['action']
+        new_action = self.choice(env)
 
-        self.Q[state, action] = self.Q[state, action] + self.alpha * (reward + self.discount_factor * np.max(self.Q[new_state, :]) - self.Q[state, action])
-
-        # TODO atualiza a table com um novo state, mas não o executa
-
+        self.Q[state, action] = self.Q[state, action] + self.alpha * (reward + self.discount_factor * self.Q[new_state, new_action] - self.Q[state, action])

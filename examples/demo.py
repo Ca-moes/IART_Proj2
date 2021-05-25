@@ -4,10 +4,11 @@ import matplotlib.pyplot as plt
 
 from examples.QAgent import QAgent
 from examples.RandomAgent import RandomAgent
+from examples.SARSAAgent import SARSAAgent
 from gym_neutreeko.envs import NeutreekoEasyEnv
 
 env = NeutreekoEasyEnv(render_mode='terminal')
-agent = QAgent()
+agent = SARSAAgent()
 print(env.action_space)  # Discrete(24)
 print(env.observation_space)  # Box(0, 2, (5, 5), int8)
 
@@ -15,7 +16,7 @@ print(env.observation_space)  # Box(0, 2, (5, 5), int8)
 training_rewards = []
 epsilons = []
 
-NB_EPISODES = 15000
+NB_EPISODES = 5000
 for episode in range(1, NB_EPISODES + 1):
     # Resetting the environment each time as per requirement
     env.reset()
@@ -29,7 +30,7 @@ for episode in range(1, NB_EPISODES + 1):
         total_training_rewards += reward
         # print(f"{info['turn']: <4} | {str(info['direction']): >10} | reward={reward: >3} ")
         # env.render()
-        agent.update(obs, reward, done, info)
+        agent.update(obs, reward, done, info, env)
     print(f"Episode {episode: <4} finished after {env.game.turns_count} turns")
 
     # Cutting down on exploration by reducing the epsilon
@@ -39,6 +40,7 @@ for episode in range(1, NB_EPISODES + 1):
     training_rewards.append(total_training_rewards)
     epsilons.append(agent.epsilon)
 print(f'Highest board id -> {agent.lastID}')
+print(f'Q-table -> {agent.Q}')
 env.close()
 
 # Visualizing results and total reward over all episodes
