@@ -30,15 +30,15 @@ class SARSAAgent:
         # Choosing an action given the states based on a random number
         exp_exp_tradeoff = np.random.uniform(0, 1)
 
-        if repr(env.observation()) not in self.board_dict:
+        if repr(env.observation) not in self.board_dict:
             if self.lastID:
                 self.lastID += 1
             else:
                 self.lastID = 0
-            self.board_dict[repr(env.observation())] = self.lastID
+            self.board_dict[repr(env.observation)] = self.lastID
             state = self.lastID
         else:
-            state = self.board_dict[repr(env.observation())]
+            state = self.board_dict[repr(env.observation)]
         # STEP 2: FIRST option for choosing the initial action - exploit
         # If the random number is larger than epsilon: employing exploitation
         # and selecting best action

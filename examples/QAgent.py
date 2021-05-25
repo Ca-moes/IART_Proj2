@@ -6,6 +6,7 @@ class QAgent:
     def __init__(self, observation_space=2300, action_space=12):
         """
         Initialize an agent and its parameters
+
         :param observation_space: How many possible states there are
         :param action_space: How many actions there are
         """
@@ -24,21 +25,22 @@ class QAgent:
     def choice(self, env) -> int:
         """
         Given the environment, choose the action to take
+
         :param env: A Game environment
         :return: the action to take
         """
         # Choosing an action given the states based on a random number
         exp_exp_tradeoff = np.random.uniform(0, 1)
 
-        if repr(env.observation()) not in self.board_dict:
+        if repr(env.observation) not in self.board_dict:
             if self.lastID:
                 self.lastID += 1
             else:
                 self.lastID = 0
-            self.board_dict[repr(env.observation())] = self.lastID
+            self.board_dict[repr(env.observation)] = self.lastID
             state = self.lastID
         else:
-            state = self.board_dict[repr(env.observation())]
+            state = self.board_dict[repr(env.observation)]
         # STEP 2: FIRST option for choosing the initial action - exploit
         # If the random number is larger than epsilon: employing exploitation
         # and selecting best action
@@ -64,6 +66,7 @@ class QAgent:
     def update(self, obs, reward: int, done: bool, info: dict, env) -> None:
         """
         Updates the Q-table after performing an action
+
         :param obs: New state that resulted from a action
         :param reward: The reward returned from applying a action to a state
         :param done: Boolean representing if the episode is finished
@@ -87,6 +90,7 @@ class QAgent:
     def episode_update(self, episode: int) -> None:
         """
         Update internals after each episode
+
         :param episode: Finished episode id
         """
         # Cutting down on exploration by reducing the epsilon
