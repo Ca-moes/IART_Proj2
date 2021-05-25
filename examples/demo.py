@@ -8,7 +8,7 @@ from examples.SARSAAgent import SARSAAgent
 from gym_neutreeko.envs import NeutreekoEasyEnv
 
 env = NeutreekoEasyEnv(render_mode='terminal')
-agent = SARSAAgent()
+agent = RandomAgent()
 print(env.action_space)  # Discrete(24)
 print(env.observation_space)  # Box(0, 2, (5, 5), int8)
 
@@ -16,7 +16,7 @@ print(env.observation_space)  # Box(0, 2, (5, 5), int8)
 training_rewards = []
 epsilons = []
 
-NB_EPISODES = 5000
+NB_EPISODES = 1000
 for episode in range(1, NB_EPISODES + 1):
     # Resetting the environment each time as per requirement
     env.reset()
@@ -31,14 +31,13 @@ for episode in range(1, NB_EPISODES + 1):
         total_training_rewards += reward
     print(f"Episode {episode: <4} finished after {env.game.turns_count} turns")
 
-    # Cutting down on exploration by reducing the epsilon
-    agent.epsilon = agent.min_epsilon + (agent.max_epsilon - agent.min_epsilon)*np.exp(-agent.decay*episode)
+    agent.episode_update(episode)
 
     # Adding the total reward and reduced epsilon values
     training_rewards.append(total_training_rewards)
-    epsilons.append(agent.epsilon)
-print(f'Highest board id -> {agent.lastID}')
-print(f'Q-table -> {agent.Q}')
+    # epsilons.append(agent.epsilon)
+# print(f'Highest board id -> {agent.lastID}')
+# print(f'Q-table -> {agent.Q}')
 env.close()
 
 # Visualizing results and total reward over all episodes
@@ -50,11 +49,11 @@ plt.title('Total rewards over all episodes in training')
 plt.show()
 
 # Visualizing the epsilons over all episodes
-plt.plot(epsilons)
-plt.xlabel('Episode')
-plt.ylabel('Epsilon')
-plt.title("Epsilon for episode")
-plt.show()
+# plt.plot(epsilons)
+# plt.xlabel('Episode')
+# plt.ylabel('Epsilon')
+# plt.title("Epsilon for episode")
+# plt.show()
 # For use with complete game
 # NB_EPISODES = 5
 # for episode in range(1, NB_EPISODES + 1):

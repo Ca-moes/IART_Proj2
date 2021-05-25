@@ -42,9 +42,9 @@ class NeutreekoUtils:
         #     return []         # No match found
 
     @staticmethod
-    def find_sequence_board(board, sequence):
+    def find_sequence_board(board: np.array, sequence):
         """
-
+        Given a board, attempts to find a sequence in all possible directions
         :param board:
         :param sequence:
         :return:

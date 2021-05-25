@@ -3,11 +3,21 @@ from typing import Tuple
 import gym
 from gym import error, spaces, utils, logger
 from gym.utils import seeding
-from gym_neutreeko.game.common.gameutils import Reward
 
 import numpy as np
 
 from gym_neutreeko.game.engine.gamelogic import NeutreekoEasyGame
+
+
+class Reward:
+    @staticmethod
+    def get(move_type):
+        return {
+            "win": 20,  # winning move
+            # "2_row": 5,  # places 2 pieces together
+            # "between": 2,  # gets in between 2 opponent pieces
+            "default": -1  # makes a move (negative to not enforce unnecessary moves)
+        }.get(move_type, -1)
 
 
 class NeutreekoEasyEnv(gym.Env):
@@ -32,32 +42,34 @@ class NeutreekoEasyEnv(gym.Env):
        All possible board combinations
     Actions:
        Type: Discrete(12)
-       Num   Action
-       0      1-UP
-       1      1-DOWN
-       2      1-LEFT
-       3      1-RIGHT
-       4      2-UP
-       5      2-DOWN
-       6      2-LEFT
-       7      2-RIGHT
-       8      3-UP
-       9      3-DOWN
-       10     3-LEFT
-       11     3-RIGHT
 
-       The piece 1 is the one with the lowest index. For a piece in coords (x, y), its index is 5*x + y.
+       Num   Action
+       0      0-UP
+       1      0-DOWN
+       2      0-LEFT
+       3      0-RIGHT
+       4      1-UP
+       5      1-DOWN
+       6      1-LEFT
+       7      1-RIGHT
+       8      2-UP
+       9      2-DOWN
+       10     2-LEFT
+       11     2-RIGHT
+
+          UP   DOWN  LEFT  RIGHT
+       0  0     1     2     3
+       1  4     5     6     7
+       2  8     9     10    11
+
+       The piece 0 is the one with the lowest index. For a piece in coords (x, y), its index is 5*x + y.
     Reward:
-       Reward is 10 for the end step and -0.1 for each other step
+       Reward class
     Starting State:
-        The initial board is a not out of the gate random winning board
+        A randomly generated board
     Episode Termination:
        The player makes 3 in a row
        Episode length is greater than 200.
-    Solved Requirements:
-        TODO Dunno
-       Considered solved when the average return is greater than or equal to
-       195.0 over 100 consecutive trials.
    """
     metadata = {
         'render.modes': ['terminal']
@@ -66,10 +78,9 @@ class NeutreekoEasyEnv(gym.Env):
     def __init__(self, render_mode='terminal', max_turns=200):
         super(NeutreekoEasyEnv, self).__init__()
 
-        # 3 pieces and 8 directions possible
-        self.action_space = gym.spaces.Discrete(4*3)
+        # 3 pieces and 4 directions possible
+        self.action_space = gym.spaces.Discrete(3*4)
         self.observation_space = gym.spaces.Discrete(2300)
-        # self.observation_space = gym.spaces.Box(low=np.int8(0), high=np.int8(2), shape=(5, 5), dtype=np.int8)
 
         self.render_mode = render_mode
         self.max_turns = max_turns
@@ -79,20 +90,10 @@ class NeutreekoEasyEnv(gym.Env):
 
     def step(self, action: int) -> Tuple[object, float, bool, dict]:
         """
-        implementation of the classic “agent-environment loop”.
-
-        Args:
-           action (object) : the board
-        Returns:
-           observation (object):
-           reward (float)
-           done (boolean)
-           info (dict)
-
+        Performs an action on the game and returns info
         :param action:
-        :return:
+        :return: observation, reward, done, info
         """
-
         reward = 0
         info = {
             'old_state': np.copy(self.game.board),
@@ -110,38 +111,57 @@ class NeutreekoEasyEnv(gym.Env):
         move_check = self.game.action_handler(pos, dir)
         if move_check:
             move_dir, new_pos, move_type = move_check
-            reward = Reward.method_1(move_type)
+            reward = Reward.get(move_type)
             info['direction'] = move_dir
             info['new_position'] = new_pos
 
         return self.observation, reward, self.done, info
 
-    def reset(self):
+    def reset(self) -> None:
+        """
+        Resets the game
+        """
         self.game.reset()
-        pass
 
-    def render(self, mode='terminal'):
+    def render(self, mode='terminal') -> None:
+        """
+        Renders the game according to the mode
+        :param mode: terminal or GUI
+        :return:
+        """
         if mode == 'terminal':
             self.game.render()
-        pass
 
     def close(self):
+        """
+        Closes the environment and terminates anything if necessary
+        """
         pass
 
-    def state(self):
-        return self.game.board
-
     @property
-    def done(self):
+    def done(self) -> bool:
+        """
+        Checks if the game is done or the max turns were reached
+        :return: True if the game is done, false otherwise
+        """
         game_over = self.game.game_over
         too_many_turns = (self.game.turns_count > self.max_turns)
         return game_over or too_many_turns
 
     @property
-    def observation(self):
+    def observation(self) -> np.array:
+        """
+        Returns the game board
+        :return: The board as a numpy array
+        """
         return np.copy(self.game.board)
 
-    def process(self, action):
+    def process(self, action: int) -> Tuple[tuple, str]:
+        """
+        Convert a action into a position and direction
+        :param action: A integer between 0 and 11 representing an action
+        :return: A tuple with a position (tuple) and a direction
+        """
         directions = ['UP', 'DOWN', 'LEFT', 'RIGHT']
         result = np.where(self.game.board == 1)
         list_of_coordinates = list(zip(result[0], result[1]))
