@@ -27,10 +27,8 @@ for episode in range(1, NB_EPISODES + 1):
     while not done:
         action = agent.choice(env)
         obs, reward, done, info = env.step(action)
-        total_training_rewards += reward
-        # print(f"{info['turn']: <4} | {str(info['direction']): >10} | reward={reward: >3} ")
-        # env.render()
         agent.update(obs, reward, done, info, env)
+        total_training_rewards += reward
     print(f"Episode {episode: <4} finished after {env.game.turns_count} turns")
 
     # Cutting down on exploration by reducing the epsilon
