@@ -11,7 +11,7 @@ class QAgent:
         self.epsilon = 1
         self.max_epsilon = 1
         self.min_epsilon = 0.01
-        self.decay = 0.005
+        self.decay = 0.001
 
         self.board_dict = {}
         self.lastID = None
@@ -66,6 +66,6 @@ class QAgent:
 
         state = self.board_dict[repr(info["old_state"])]
         new_state = self.board_dict[repr(obs)]
-        action = 1
+        action = info['action']
 
         self.Q[state, action] = self.Q[state, action] + self.alpha * (reward + self.discount_factor * np.max(self.Q[new_state, :]) - self.Q[state, action])

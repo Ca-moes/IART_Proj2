@@ -30,7 +30,7 @@ class NeutreekoUtils:
 
         # Create a 2D array of sliding indices across the entire length of input array.
         # Match up with the input sequence & get the matching starting indices.
-        M = (arr[np.arange(Na-Nseq+1)[:,None] + r_seq] == seq).all(1)
+        M = (arr[np.arange(Na-Nseq+1)[:, None] + r_seq] == seq).all(1)
 
         # Return true if the sequence exists
         return M.any() > 0
@@ -101,10 +101,10 @@ class Reward:
     @staticmethod
     def method_1(move_type) -> int:
         CONST_REWARDS = {
-            "win": 30,  # winning move
+            "win": 20,  # winning move
             # "2_row": 5,  # places 2 pieces together
             # "between": 2,  # gets in between 2 opponent pieces
-            "default": -0.1  # makes a move (negative to not enforce unnecessary moves)
+            "default": -1  # makes a move (negative to not enforce unnecessary moves)
         }
 
         return CONST_REWARDS.get(move_type, -1)

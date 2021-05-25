@@ -27,11 +27,11 @@ class NeutreekoEasyGame:
 
         :return: numpy.array
         """
-        return np.array([[0, 1, 0, 0, 0],
-                         [0, 0, 1, 0, 0],
-                         [0, 0, 0, 1, 0],
-                         [0, 0, 0, 0, 0],
-                         [0, 0, 0, 0, 0]], dtype=np.int8)
+        # return np.array([[0, 1, 0, 0, 0],
+        #                  [0, 0, 1, 0, 0],
+        #                  [0, 0, 0, 1, 0],
+        #                  [0, 0, 0, 0, 0],
+        #                  [0, 0, 0, 0, 0]], dtype=np.int8)
 
         board = np.array([[0, 0, 0, 0, 0],
                           [0, 0, 0, 0, 0],

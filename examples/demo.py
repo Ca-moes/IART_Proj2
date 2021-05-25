@@ -15,7 +15,7 @@ print(env.observation_space)  # Box(0, 2, (5, 5), int8)
 training_rewards = []
 epsilons = []
 
-NB_EPISODES = 1000
+NB_EPISODES = 15000
 for episode in range(1, NB_EPISODES + 1):
     # Resetting the environment each time as per requirement
     env.reset()
