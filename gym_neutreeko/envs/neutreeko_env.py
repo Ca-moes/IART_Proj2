@@ -9,6 +9,7 @@ import numpy as np
 
 from gym_neutreeko.game.engine.gamelogic import NeutreekoGame
 
+
 class NeutreekoEnv(gym.Env):
     """
     TODO Mudar o que está abaixo. Retirado daqui: https://github.com/openai/gym/blob/master/gym/envs/classic_control/cartpole.py
@@ -62,10 +63,9 @@ class NeutreekoEnv(gym.Env):
     def __init__(self, render_mode='terminal', max_turns=200):
         super(NeutreekoEnv, self).__init__()
 
-        # Every environment comes with an action_space and an observation_space.
-        # These attributes are of type Space
-        self.action_space = gym.spaces.Box(0, 60, shape=(2,), dtype=np.uint8) #TODO Isto À esquerda
-        self.observation_space = gym.spaces.Box(low=np.int8(0), high=np.int8(2), shape=(5,5), dtype=np.int8)
+        # 3 pieces and 8 directions possible
+        self.action_space = gym.spaces.Discrete(8*3)
+        self.observation_space = gym.spaces.Box(low=np.int8(0), high=np.int8(2), shape=(5, 5), dtype=np.int8)
 
         self.render_mode = render_mode
         self.max_turns = max_turns
